@@ -1,0 +1,140 @@
+Sub stocks()
+
+    For Each ws In Worksheets
+
+        Dim Open_price As Double
+        Dim Close_price As Double
+        Dim stockvolume As Variant
+        Dim ticker As String
+        Dim yearly_change As Double
+        Dim percent_change As Double
+        Dim total_yearly_price As Double
+        Dim percent As Double
+        Dim ticker_row As Integer
+                      
+        Dim Summary_Table_Row As Integer
+        Summary_Table_Row = 2
+        Price_Row = 2
+        stockvolume = 0
+        yearly_change = 0
+        percent_change = 0
+                
+        Dim WorksheetName As String
+
+        LastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+
+        WorksheetName = ws.Name
+                   
+        ws.Cells(1, 9).Value = "Ticker"
+        ws.Cells(1, 10).Value = "Year Change"
+        ws.Cells(1, 11).Value = "Persent Change"
+        ws.Cells(1, 12).Value = "Total Volume"
+        ws.Cells(1, 16).Value = "Ticker"
+        ws.Cells(1, 17).Value = "Value"
+                
+        For i = 2 To LastRow
+        openprice = ws.Cells(Summary_Table_Row, 3).Value
+        
+            If ws.Cells(i, 1).Value <> ws.Cells(i + 1, 1).Value Then
+               ticker = ws.Cells(i, 1).Value
+            
+               Open_price = ws.Range("C" & Price_Row).Value
+               Close_price = ws.Range("F" & i).Value
+               yearly_change = Close_price - Open_price
+               
+            If Open_price = 0 Then
+               percent_change = 0
+            Else
+                percent_change = yearly_change / Open_price
+            End If
+              ws.Range("I" & Summary_Table_Row).Value = ticker
+              
+              ws.Range("J" & Summary_Table_Row).Value = yearly_change
+              
+              ws.Range("K" & Summary_Table_Row).Value = percent_change
+              
+              ws.Range("K" & Summary_Table_Row).Style = "Percent"
+              ws.Range("K" & Summary_Table_Row).NumberFormat = "0.00%"
+              
+              ws.Range("L" & Summary_Table_Row).Value = stockvolume
+                 
+               
+               Summary_Table_Row = Summary_Table_Row + 1
+               Price_Row = i + 1
+            
+               stockvolume = 0
+          
+            Else
+            
+            stockvolume = stockvolume + ws.Cells(i, 7).Value
+            On Error Resume Next
+            End If
+                      
+        Next i
+
+        Dim yearLastRow As Long
+        yearLastRow = ws.Cells(Rows.Count, 10).End(xlUp).Row
+        
+        For i = 2 To yearLastRow
+        
+        If ws.Cells(i, 10).Value >= 0 Then
+                ws.Cells(i, 10).Interior.ColorIndex = 4
+            Else
+                ws.Cells(i, 10).Interior.ColorIndex = 3
+            End If
+        Next i
+            
+        Dim percentLastRow As Long
+        percentLastRow = ws.Cells(Rows.Count, 11).End(xlUp).Row
+        Dim percent_max As Double
+        percent_max = 0
+        Dim percent_min As Double
+        percent_min = 0
+        
+        
+        For i = 2 To percentLastRow
+        
+        If percent_max < ws.Cells(i, 11).Value Then
+                percent_max = ws.Cells(i, 11).Value
+                ws.Cells(2, 17).Value = percent_max
+                ws.Cells(2, 17).NumberFormat = "0.00%"
+                ws.Cells(2, 16).Value = ws.Cells(i, 9).Value
+                ws.Cells(2, 15).Value = "Greatest % Increase"
+                
+            ElseIf percent_min > ws.Cells(i, 11).Value Then
+            
+                percent_min = ws.Cells(i, 11).Value
+                ws.Cells(3, 17).Value = percent_min
+                ws.Cells(3, 17).NumberFormat = "0.00%"
+                ws.Cells(3, 16).Value = ws.Cells(i, 9).Value
+                ws.Cells(3, 15).Value = "Greatest % Decrease"
+                
+            End If
+        Next i
+        
+        Dim totalVolumeRow As Long
+        totalVolumeRow = ws.Cells(Rows.Count, 12).End(xlUp).Row
+        Dim totalVolumeMax As Double
+        totalVolumeMax = 0
+        
+        For i = 2 To totalVolumeRow
+        
+            If totalVolumeMax < ws.Cells(i, 12).Value Then
+                totalVolumeMax = ws.Cells(i, 12).Value
+                ws.Cells(4, 17).Value = totalVolumeMax
+                ws.Cells(4, 17).NumberFormat = "0.00E+00"
+                ws.Cells(4, 16).Value = ws.Cells(i, 9).Value
+                ws.Cells(4, 15).Value = "Greatest Total Volume"
+                
+                ws.Range("O1").ColumnWidth = 20
+                ws.Range("J1").ColumnWidth = 12
+                ws.Range("K1").ColumnWidth = 12
+                ws.Range("L1").ColumnWidth = 12
+        
+        
+            End If
+        Next i
+        
+    Next ws
+        
+End Sub
